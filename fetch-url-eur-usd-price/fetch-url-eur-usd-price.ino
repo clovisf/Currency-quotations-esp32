@@ -15,8 +15,8 @@
 #include <ArduinoJson.h>
 
 // Configurações da rede WiFi à se conectar
-const char* ssid = "Clovis 2.4G";
-const char* password = "99143304";
+const char* ssid = "";
+const char* password = "";
 
 JsonDocument doc;
 String payload;
