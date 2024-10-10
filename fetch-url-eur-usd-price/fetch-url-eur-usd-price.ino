@@ -18,7 +18,7 @@
 const char* ssid = "Clovis 2.4G";
 const char* password = "99143304";
 
-JsonDocument  doc;
+JsonDocument doc;
 String payload;
 
 void setup() {
@@ -72,13 +72,9 @@ void setup() {
 }
 
 void loop() {
-  deserializeJson(doc, payload);
   
-  /*if(!root.success()) {
-    Serial.println("parseObject() failed");
-    return false;
-  }*/
-  String cotacao= doc["name"];
+  deserializeJson(doc, payload);
+  String cotacao= doc["bid"];
   Serial.println(cotacao);
 
 delay(1000);
