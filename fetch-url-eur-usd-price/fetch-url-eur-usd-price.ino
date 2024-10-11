@@ -8,7 +8,6 @@
 const char* ssid = "";
 const char* password = "";
 
-
 String payload;
 
 HTTPClient http; // o objeto da classe HTTPClient
