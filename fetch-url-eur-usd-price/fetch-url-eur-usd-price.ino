@@ -1,16 +1,15 @@
 
-// Inclusão da(s) biblioteca(s)
-#include <WiFi.h>       // Biblioteca nativa do ESP32
-#include <HTTPClient.h> // Biblioteca nativa do ESP32
+#include <WiFi.h>       
+#include <HTTPClient.h> 
 #include <ArduinoJson.h>
 
-// Configurações da rede WiFi à se conectar
+// WiFi credentials
 const char* ssid = "";
 const char* password = "";
 
 String payload;
 
-HTTPClient http; // o objeto da classe HTTPClient
+HTTPClient http; // HTTPClient's object
 
 #include <SPI.h>
 #include <Wire.h>
@@ -28,7 +27,6 @@ long oldtime;
 
 void setup() {
 
-  // Inicia Serial
   Serial.begin(115200);
   Serial.println();
   delay(1000);
@@ -39,63 +37,63 @@ void setup() {
   // Clear the buffer.
   display.clearDisplay();
 
-  WiFi.disconnect(); // Desconecta do WiFI se já houver alguma conexão
-  WiFi.mode(WIFI_STA); // Configura o ESP32 para o modo de conexão WiFi Estação
-  Serial.println("[SETUP] Tentando conexão com o WiFi...");
-  WiFi.begin(ssid, password); // Conecta-se à rede
-  if (WiFi.waitForConnectResult() == WL_CONNECTED) // aguarda até que o módulo se
-    //                                                  conecte ao ponto de acesso
+  WiFi.disconnect(); // First disconnects from WiFi to then connect properly
+  WiFi.mode(WIFI_STA); // Station mode
+  Serial.println("[SETUP] Trying WiFi connection...");
+  WiFi.begin(ssid, password); // Use credentials to connect
+  if (WiFi.waitForConnectResult() == WL_CONNECTED) // 
+    
   {
-    Serial.println("[SETUP] WiFi iniciado com sucesso!");
+    Serial.println("[SETUP] Connected successfully!");
   } else
   {
-    Serial.println("[SETUP] Houve falha na inicialização do WiFi. Reiniciando ESP.");
+    Serial.println("[SETUP] Connection failed, restarting ESP32");
     ESP.restart();
   }
 
-  http.begin("https://economia.awesomeapi.com.br/json/USD-EUR/1"); // configura o URL para fazer requisição no servidor
-    // entra em um laço de repetição infinito
-  //while (1);
+  http.begin("https://economia.awesomeapi.com.br/json/USD-EUR/1"); // The URL to fetch currency conversion from
+    
 }
 
 void loop() {
   
   currenttime= millis();
-  if(currenttime - oldtime > 30000){
+  if(currenttime - oldtime > 30000){  // enters the code only every 30000 ms (30 seconds)
     oldtime= millis();
 
     Serial.println("[HTTP] GET...");
-    int httpCode = http.GET(); // inicia uma conexão e envia um cabeçalho HTTP para o
-    //                              URL do servidor configurado
-    Serial.print("[HTTP] GET... código: ");
+    int httpCode = http.GET(); 
+    
+    Serial.print("[HTTP] GET... code: ");
     Serial.println(httpCode);
-    if (httpCode == HTTP_CODE_OK) // se o cabeçalho HTTP foi enviado e o cabeçalho de
-      //                               resposta do servidor foi tratado, ...
+    if (httpCode == HTTP_CODE_OK)
+      
     {
-      Serial.println("[HTTP] GET... OK! Resposta: ");
+      Serial.println("[HTTP] GET... OK! Answer: ");
 
-      payload = http.getString(); // armazena a resposta da requisição
-      Serial.println(payload); // imprime a resposta da requisição
-    } else // se não, ...
+      payload = http.getString(); // This is where the magic happens, "payload" receives the newly fetched JSON here
+      Serial.println(payload); 
+    } else 
     {
-      Serial.print("HTTP GET... Erro. Mensagem de Erro: ");
-      Serial.println(http.errorToString(httpCode).c_str()); // Imprime a mensagem de erro da requisição
+      Serial.print("HTTP GET... Error message: ");
+      Serial.println(http.errorToString(httpCode).c_str()); 
     }
 
-    http.end();// Fecha a requisição HTTP
+    http.end();// Close HTPP requisition
 
   
     JsonDocument remotedata;
 
     
-
+    // This is also part of the magic. Since AwesomeAPI's JSON comes to us with brackets ("[" and "]") 
+    // we have to remove both so that ArduinoJSON can read it
     payload.replace("[", "");
     payload.replace("]", "");
 
-    DeserializationError error = deserializeJson(remotedata, (char*) payload.c_str());
+    DeserializationError error = deserializeJson(remotedata, (char*) payload.c_str()); // Here the JSON is deserialized
 
     
-    float conversion= remotedata["bid"];
+    float conversion= remotedata["bid"]; // We want to read the "bid" price within the string received
     Serial.println(conversion, 4);
 
     display.clearDisplay();
@@ -106,7 +104,7 @@ void loop() {
     display.setCursor(15,10);
     display.println("One USD buys ");
     display.setCursor(15,20);
-    display.println(conversion, 4);
+    display.println(conversion, 4); // Showing converted value on screen
     display.setCursor(50,20);
     display.println(" Euros");
     display.display();
